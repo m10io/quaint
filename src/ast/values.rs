@@ -377,6 +377,14 @@ impl<'a> From<i32> for ParameterizedValue<'a> {
     }
 }
 
+#[cfg(feature = "array")]
+impl<'a, T: Into<ParameterizedValue<'a>>> From<Vec<T>> for ParameterizedValue<'a> {
+    #[inline]
+    fn from(that: Vec<T>) -> Self {
+        ParameterizedValue::Array(that.into_iter().map(|x| x.into()).collect::<Vec<_>>())
+    }
+}
+
 impl<'a> TryFrom<ParameterizedValue<'a>> for i64 {
     type Error = Error;
 
@@ -547,17 +555,6 @@ where
     #[inline]
     fn from(p: T) -> Self {
         DatabaseValue::Parameterized(p.into())
-    }
-}
-
-impl<'a, T> From<Vec<T>> for DatabaseValue<'a>
-where
-    T: Into<DatabaseValue<'a>>,
-{
-    #[inline]
-    fn from(v: Vec<T>) -> Self {
-        let row: Row<'a> = v.into();
-        row.into()
     }
 }
 
